@@ -1,0 +1,44 @@
+import java.net.*;
+import java.io.*;
+
+public class Server {
+    public static void main(String[] args) {
+        try {
+            ServerSocket ss = new ServerSocket(7227);
+            System.out.println("Server started and waiting for client...");
+
+            Socket s = ss.accept();
+            System.out.println("Client connected...");
+
+            // Use BufferedReader to read the message
+            BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            String str = in.readLine();  // readLine() reads the message sent by println() from the client
+            System.out.println("Message: " + str);
+
+            s.close();
+            ss.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+}
+
+import java.net.*;
+import java.io.*;
+
+public class Client {
+    public static void main(String[] args) {
+        try {
+            Socket s = new Socket("192.168.71.130", 7227);
+            System.out.println("Connected to server");
+
+            // Use PrintWriter to send a message
+            PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+            out.println("To all the Subjects of Ymir");
+
+            s.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+}

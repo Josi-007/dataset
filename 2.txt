@@ -1,0 +1,67 @@
+import java.io.*;
+import java.net.*;
+
+class fileserver {
+    public static void main(String[] args) {
+        int b;
+        int key = 64;
+        String encryptedData = "";
+        try {
+            ServerSocket ss = new ServerSocket(7227);
+            System.out.println("Server started and waiting for client . . .");
+            Socket s = ss.accept();
+            System.out.println("Client connected. . .");
+
+            FileInputStream fis = new FileInputStream("README.txt");
+            while ((b = fis.read()) != -1) {
+                b = b + key;
+                encryptedData = encryptedData + (char) b;
+            }
+            fis.close();
+
+            PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+            out.println(encryptedData);
+
+            s.close();
+            ss.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+}
+
+import java.io.*;
+import java.net.*;
+
+class FileClient {
+    public static void main(String[] args) {
+        int b;
+        int key = 64;
+        String decryptedData = "";
+        try {
+            Socket s = new Socket("localhost", 7227);
+            System.out.println("Connected to server...");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            String encryptedData = in.readLine();
+
+            for (int i = 0; i < encryptedData.length(); i++) {
+                b = encryptedData.charAt(i) - key;
+                decryptedData = decryptedData + (char) b;
+            }
+
+            System.out.println("Decrypted file content:");
+            System.out.println(decryptedData);
+
+            // Write the decrypted data to a file
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("decrypted_file.txt"))) {
+                writer.write(decryptedData);
+            }
+
+            System.out.println("Decrypted data has been saved to decrypted_file.txt");
+            s.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+}

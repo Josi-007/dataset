@@ -1,0 +1,57 @@
+import java.rmi.*;
+public interface Hello extends Remote
+{
+	int add(int a,int b) throws RemoteException;
+}
+
+import java.rmi.*;
+import java.rmi.server.*;
+public class HelloImpl extends UnicastRemoteObject implements Hello
+{
+	public HelloImpl()throws RemoteException
+	{
+	}
+	public int add(int a,int b) throws RemoteException
+	{
+		return a+b;
+	}
+
+}
+
+import java.rmi.*;
+import java.net.*;
+public class TestClient
+{
+	public static void main(String args[])
+	{
+		try
+		{
+			Hello h=(Hello)Naming.lookup("rmi://localhost/AddServer");
+			System.out.println(h.add(100,123));
+			
+		}
+		catch(Exception e)
+		{	
+			System.out.println(e);
+		}
+	}
+}
+
+import java.rmi.*;
+import java.net.*;
+public class TestRMI
+{
+	public static void main(String args[])
+	{
+		try
+		{
+			HelloImpl x=new HelloImpl();
+			Naming.rebind("AddServer",x);
+			System.out.println("My remote method ready..");
+		}
+		catch(Exception e)
+		{	
+			System.out.println(e);
+		}
+	}
+}

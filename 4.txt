@@ -1,0 +1,108 @@
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import gnu.io.*;
+import java.io.*;
+ 
+public class RS232Sender 
+{
+      	OutputStream out;
+ 	void send()
+	{			
+ 		try 
+		{
+			DataInputStream din=new DataInputStream(System.in);
+			System.out.println("Enter the msg to transmit:");
+			String mes = din.readLine();
+			byte bytes[]=mes.getBytes();
+         		 	System.out.println("SENDING: " + new String(bytes, 0, bytes.length));
+          			out.write(bytes);
+           			out.flush();
+			System.exit(0);
+        		} 
+		catch (IOException e) 
+		{
+           			System.out.println(e);
+       		 }	
+     	}
+
+	public void connect() throws Exception 
+	{
+		CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier("COM1");
+		 try 
+		{ 
+	          	 	 SerialPort serialPort = (SerialPort) portIdentifier.open("Demo", 2000);
+	           		 serialPort.setSerialPortParams(38400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+            	          		 out = serialPort.getOutputStream();
+		}
+		catch (Exception e)
+		{ 
+        			System.out.println(e);
+            	   	}
+	}
+              
+	 public static void main(String[] args) throws Exception
+	{
+		RS232Sender t=new RS232Sender();
+		t.connect();
+		t.send();
+	}
+}
+
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEventListener;
+import gnu.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+ 
+public class RS232Receiver implements SerialPortEventListener
+{
+      	
+ 	InputStream in;
+   	
+	 public void serialEvent(SerialPortEvent event)
+  	 {
+	  	 switch(event.getEventType()) 
+	   	{
+		    	 case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
+		  		 break;
+		  	 case SerialPortEvent.DATA_AVAILABLE:
+			  byte b;
+			   try 
+			   {
+				   while((b = (byte)in.read()) != -1) 
+				   {
+					System.out.print((char)b);
+				    }
+				System.exit(0);
+           			       }
+			    catch (IOException e){System.out.println("IO Exception"); }
+		}
+	   }
+        
+	public void connect() throws Exception 
+	{
+		CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier("COM1");
+		 try 
+		{ 
+	          	 	 SerialPort serialPort = (SerialPort) portIdentifier.open("Demo", 2000);
+	           		 serialPort.addEventListener(this);
+        	                    	 serialPort.notifyOnDataAvailable(true);
+	           		 serialPort.setSerialPortParams(38400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+            	                        	 in = serialPort.getInputStream();
+       		 }
+		catch (Exception e)
+		{ 
+        			System.out.println(e);
+            			System.exit(0);
+        		}
+	}
+              
+	 public static void main(String[] args) throws Exception
+	{
+		RS232Receiver t=new RS232Receiver();
+		t.connect();
+	}
+}
